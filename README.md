@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 MIPS Translator   
 This tool is used on the Computer Architecture course at Universidad del Norte. It is used to translate MIPS instructions to Hexadecimal and viceversa. It also has a MIPS simulator that is still under development.
 
@@ -63,3 +64,6 @@ GNU General Public License v3.0
 =======
 # ProyectoPC2
 >>>>>>> 35a1f450427fe49ec220e77de4bc5e9dce3ee7fb
+=======
+# PC2ProyectoMIPS
+>>>>>>> 1318a6251c7c17dfa6d7c0bb3bc88b88beb97171
