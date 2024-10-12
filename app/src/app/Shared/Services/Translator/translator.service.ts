@@ -39,18 +39,11 @@ export class TranslatorService {
   convertOpCodeNameToCode(opcodeName: string): string {
     const opcodeMap: { [key: string]: string } = {
       "add": "000000", "sub": "000000", "slt": "000000", "and": "000000", "or": "000000",
-      "addi": "001000", "lw": "100011", "sw": "101011",
-      "beq": "000100", "bne": "000101",
-      "bgtz": "000111", "blez": "000110",
-      "j": "000010", "jal": "000011",
-      "addu": "100001", "div": "011010",
-      "divu": "011011", "mult": "01100",
-      "multu": "011001", "nor": "100111",
-      "sll": "000000", "sllv": "000100",
-      "sra": "000011", "srav": "000111",
-      "srl": "000010", "srlv": "000110",
-      "subu": "100011", "xor": "100110",
-      "addiu": "001001", "andi": "001100",
+      "addi": "001000", "lw": "100011", "sw": "101011", "beq": "000100", "bne": "000101",
+      "bgtz": "000111", "blez": "000110", "j": "000010", "jal": "000011", "addu": "100001",
+      "div": "011010", "divu": "011011", "mult": "01100", "multu": "011001", "nor": "100111",
+      "sll": "000000", "sllv": "000100", "sra": "000011", "srav": "000111", "srl": "000010",
+      "srlv": "000110", "subu": "100011", "xor": "100110", "addiu": "001001", "andi": "001100",
       "ori": "001101", "xori": "001110"
     };
     return opcodeMap[opcodeName] || 'unknown';
@@ -104,12 +97,19 @@ export class TranslatorService {
       if (!rt || !rs || isNaN(immediate)) return "Invalid Syntax";
       binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
     } else if (["addi"].includes(parts[0])) {
-
       const rt = regMap[parts[1]];
       const rs = regMap[parts[2]];
       const immediate = parseInt(parts[3]);
       if (!rt || !rs || isNaN(immediate)) return "Invalid Syntax";
       binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
+
+    } else if (["addiu", "andi", "ori", "xori"].includes(parts[0])) {
+      const rt = regMap[parts[1]];
+      const rs = regMap[parts[2]];
+      const immediate = parseInt(parts[3]);
+      if (!rt || !rs || isNaN(immediate)) return "Invalid Syntax";
+      binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
+
     } else if (["beq", "bne", "bgtz", "blez"].includes(parts[0])) {
       const opcode = this.convertOpCodeNameToCode(parts[0]);
       const rs = regMap[parts[1]];
