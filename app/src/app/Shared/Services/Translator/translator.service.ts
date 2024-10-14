@@ -82,13 +82,20 @@ export class TranslatorService {
     if (!opcode) return "Unknown Instruction";
 
     let binaryInstruction = opcode;
-    if (["add", "sub", "slt", "and", "or"].includes(parts[0])) {
+    if (["add", "sub", "slt", "and", "or", "nor"].includes(parts[0])) {
 
       const rd = regMap[parts[1]];
       const rs = regMap[parts[2]];
       const rt = regMap[parts[3]];
       if (!rd || !rs || !rt) return "Invalid Registers";
       binaryInstruction += rs + rt + rd + "00000" + funcMap[parts[0]];
+
+    } else if (["div", "divu", "mult", "multu"].includes(parts[0])) {
+      const rs = regMap[parts[1]];
+      const rt = regMap[parts[2]];
+      if (!rs || !rt) return "Invalid Registers";
+      binaryInstruction += rs + rt + "00000" + "00000" + funcMap[parts[0]];
+
     } else if (["lw", "sw"].includes(parts[0])) {
 
       const rt = regMap[parts[1]];
@@ -96,7 +103,9 @@ export class TranslatorService {
       const immediate = parseInt(parts[2]);
       if (!rt || !rs || isNaN(immediate)) return "Invalid Syntax";
       binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
+
     } else if (["addi"].includes(parts[0])) {
+
       const rt = regMap[parts[1]];
       const rs = regMap[parts[2]];
       const immediate = parseInt(parts[3]);
@@ -104,13 +113,24 @@ export class TranslatorService {
       binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
 
     } else if (["addiu", "andi", "ori", "xori"].includes(parts[0])) {
+
       const rt = regMap[parts[1]];
       const rs = regMap[parts[2]];
       const immediate = parseInt(parts[3]);
       if (!rt || !rs || isNaN(immediate)) return "Invalid Syntax";
       binaryInstruction += rs + rt + (immediate >>> 0).toString(2).padStart(16, '0');
 
+    } else if (["sll", "srl", "sra"].includes(parts[0])) {
+
+      const rd = regMap[parts[1]];
+      const rt = regMap[parts[2]];
+      const shamt = parseInt(parts[3]);
+      if (!rd || !rt || isNaN(shamt)) return "Invalid Syntax";
+      const shamtBin = shamt.toString(2).padStart(5, '0');
+      binaryInstruction += "00000" + rt + rd + shamtBin + funcMap[parts[0]];
+
     } else if (["beq", "bne", "bgtz", "blez"].includes(parts[0])) {
+
       const opcode = this.convertOpCodeNameToCode(parts[0]);
       const rs = regMap[parts[1]];
       const rt = ["beq", "bne"].includes(parts[0]) ? regMap[parts[2]] : "00000"; // for bgtz/blez, rt is 00000
@@ -124,6 +144,7 @@ export class TranslatorService {
 
       return hexInstruction;
     } else if (["j", "jal"].includes(parts[0])) {
+
       const address = parseInt(parts[1]);
       if (isNaN(address)) return "Invalid Syntax";
 
@@ -191,6 +212,20 @@ export class TranslatorService {
       "100101": "or",
       "001000": "jr",
       "001001": "jalr",
+      "100001": "addu",
+      "011010": "div",
+      "011011": "divu",
+      "011000": "mult",
+      "011001": "multu",
+      "100111": "nor",
+      "000000": "sll",
+      "000100": "sllv",
+      "000011": "sra",
+      "000111": "srav",
+      "000010": "srl",
+      "000110": "srlv",
+      "100011": "subu",
+      "100110": "xor"
     };
 
     return funcMap[functBinary] || 'unknown';
@@ -203,7 +238,7 @@ export class TranslatorService {
 
       "000000": "add",
       // @ts-ignore
-      "000000": "sub", "000000": "slt", "000000": "and", "000000": "or", "000000": "jalr", "000000": "jr",
+      "000000": "sub", "000000": "slt", "000000": "and", "000000": "or", "000000": "jalr", "000000": "jr", "000000": "addu", "000000": "div", "000000": "divu", "000000": "mult", "000000": "multu", "000000": "nor", "000000": "sll", "000000": "sllv", "000000": "sra", "000000": "srav", "000000": "srl", "000000": "srlv", "000000": "subu", "000000": "xor",
       "001000": "addi",
       "100011": "lw",
       "101011": "sw",
@@ -212,7 +247,12 @@ export class TranslatorService {
       "000111": "bgtz",
       "000110": "blez",
       "000010": "j",
-      "000011": "jal"
+      "000011": "jal",
+      "001100": "andi",
+      "001101": "ori",
+      "001110": "xori",
+      "001001": "addiu"
+
     };
     return opcodeMap[opcodeBinary] || 'unknown';
   }
