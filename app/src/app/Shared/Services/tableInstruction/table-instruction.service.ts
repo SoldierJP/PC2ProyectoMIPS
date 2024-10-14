@@ -20,7 +20,7 @@ export class TableInstructionService {
   }
   textContent = '';
 
-  constructor() {}
+  constructor() { }
 
   convertRegisterToName(registerBinary: string) {
     const regMap: { [key: string]: string } = {
@@ -61,13 +61,13 @@ export class TableInstructionService {
   }
 
   explainInstruction() {
-    
+
     this.selectedLineText$.subscribe((text) => {
-      if(!this.isHexToMips.value){
+      if (!this.isHexToMips.value) {
         text = this.converter.translateMIPStoHex(text);
       }
       this.selectedLineText = text;
-    
+
     });
     const instruction = this.selectedLineText.trim();
     return this.generateInstructionTable(instruction.trim());
@@ -124,7 +124,7 @@ export class TableInstructionService {
       case '000100':
       case '000101':
       case '000110':
-      case '000111': 
+      case '000111':
         return { type: 'I', data: this.produceIInstruction(instruction) };
       case '000010':
       case '000011':
@@ -147,16 +147,35 @@ export class TableInstructionService {
       case 'and':
       case 'or':
       case 'slt':
+      case 'addu':
+      case 'div':
+      case 'divu':
+      case 'mult':
+      case 'multu':
+      case 'nor':
+      case 'sll':
+      case 'sllv':
+      case 'sra':
+      case 'srav':
+      case 'srl':
+      case 'srlv':
+      case 'subu':
+      case 'xor':
         // R-type instructions
         details = {
           operation: operation,
           rs: parts[2], // e.g., "$t2"
           rt: parts[3], // e.g., "$t3"
           rd: parts[1], // e.g., "$t1"
-          shamt: '0',
+          shamt: ['sll', 'sra', 'srl'].includes(operation) ? parts[3] : '0', // Para las de desplazamiento
           funct: this.converter.operationToFunctionCode(operation),
         };
+
         explanation = `This is an R-type instruction where ${details.rd} gets the result of ${details.operation} operation between ${details.rs} and ${details.rt}.`;
+
+        if (['sll', 'sra', 'srl'].includes(operation)) {
+          explanation = `This is an R-type instruction where ${details.rd} gets the result of shifting ${details.rt} by ${details.shamt} positions using ${details.operation}.`;
+        }
         break;
       // Add cases for I-type and J-type instructions
       case 'lw':
@@ -203,6 +222,46 @@ export class TableInstructionService {
           offset: parts[3], // e.g., "100"
         };
         explanation = `This is an I-type instruction where the program jumps to the target address if the values in ${details.rs} and ${details.rt} are not equal.`;
+        break;
+
+      case 'addiu':
+        details = {
+          operation: operation,
+          rt: parts[1], // e.g., "$t1"
+          rs: parts[2], // e.g., "$t2"
+          immediate: parts[3], // e.g., "100"
+        };
+        explanation = `This is an I-type instruction where ${details.rt} gets the result of adding the value in ${details.rs} and the immediate value ${details.immediate}, but without generating an overflow.`;
+        break;
+
+      case 'andi':
+        details = {
+          operation: operation,
+          rt: parts[1], // e.g., "$t1"
+          rs: parts[2], // e.g., "$t2"
+          immediate: parts[3], // e.g., "100"
+        };
+        explanation = `This is an I-type instruction where ${details.rt} gets the result of a bitwise AND between the value in ${details.rs} and the immediate value ${details.immediate}.`;
+        break;
+
+      case 'ori':
+        details = {
+          operation: operation,
+          rt: parts[1], // e.g., "$t1"
+          rs: parts[2], // e.g., "$t2"
+          immediate: parts[3], // e.g., "100"
+        };
+        explanation = `This is an I-type instruction where ${details.rt} gets the result of a bitwise OR between the value in ${details.rs} and the immediate value ${details.immediate}.`;
+        break;
+
+      case 'xori':
+        details = {
+          operation: operation,
+          rt: parts[1], // e.g., "$t1"
+          rs: parts[2], // e.g., "$t2"
+          immediate: parts[3], // e.g., "100"
+        };
+        explanation = `This is an I-type instruction where ${details.rt} gets the result of a bitwise XOR between the value in ${details.rs} and the immediate value ${details.immediate}.`;
         break;
     }
     return explanation;
