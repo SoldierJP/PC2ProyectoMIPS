@@ -125,6 +125,10 @@ export class TableInstructionService {
       case '000101':
       case '000110':
       case '000111':
+      case '001001':
+      case '001100':
+      case '001101':
+      case '001110':
         return { type: 'I', data: this.produceIInstruction(instruction) };
       case '000010':
       case '000011':
@@ -147,35 +151,16 @@ export class TableInstructionService {
       case 'and':
       case 'or':
       case 'slt':
-      case 'addu':
-      case 'div':
-      case 'divu':
-      case 'mult':
-      case 'multu':
-      case 'nor':
-      case 'sll':
-      case 'sllv':
-      case 'sra':
-      case 'srav':
-      case 'srl':
-      case 'srlv':
-      case 'subu':
-      case 'xor':
         // R-type instructions
         details = {
           operation: operation,
           rs: parts[2], // e.g., "$t2"
           rt: parts[3], // e.g., "$t3"
           rd: parts[1], // e.g., "$t1"
-          shamt: ['sll', 'sra', 'srl'].includes(operation) ? parts[3] : '0', // Para las de desplazamiento
+          shamt: '0',
           funct: this.converter.operationToFunctionCode(operation),
         };
-
         explanation = `This is an R-type instruction where ${details.rd} gets the result of ${details.operation} operation between ${details.rs} and ${details.rt}.`;
-
-        if (['sll', 'sra', 'srl'].includes(operation)) {
-          explanation = `This is an R-type instruction where ${details.rd} gets the result of shifting ${details.rt} by ${details.shamt} positions using ${details.operation}.`;
-        }
         break;
       // Add cases for I-type and J-type instructions
       case 'lw':
@@ -231,7 +216,7 @@ export class TableInstructionService {
           rs: parts[2], // e.g., "$t2"
           immediate: parts[3], // e.g., "100"
         };
-        explanation = `This is an I-type instruction where ${details.rt} gets the result of adding the value in ${details.rs} and the immediate value ${details.immediate}, but without generating an overflow.`;
+        explanation = `This is an I-type instruction where ${details.rt} get the result of adding the value in ${details.rs} and the immediate value ${details.immediate}, but without generating an overflow.`;
         break;
 
       case 'andi':
@@ -263,6 +248,7 @@ export class TableInstructionService {
         };
         explanation = `This is an I-type instruction where ${details.rt} gets the result of a bitwise XOR between the value in ${details.rs} and the immediate value ${details.immediate}.`;
         break;
+
     }
     return explanation;
   }
