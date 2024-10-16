@@ -12,7 +12,7 @@ export class TranslatorService {
       'and': '100100',
       'or': '100101',
       'slt': '101010',
-      'addu': '100001',
+      'addu': '100001', // Operaciones Agregadas
       'div': '011010',
       'divu': '011011',
       'mult': '011000',
@@ -21,7 +21,7 @@ export class TranslatorService {
       'sll': '000000',
       'sllv': '000100',
       'sra': '000011',
-      'srav': '000111', //operaciones agregadas
+      'srav': '000111',
       'srl': '000010',
       'srlv': '000110',
       'subu': '100011',

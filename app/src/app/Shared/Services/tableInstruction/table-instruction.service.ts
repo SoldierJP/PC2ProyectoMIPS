@@ -123,7 +123,7 @@ export class TableInstructionService {
       case '101011':
       case '000100':
       case '000101':
-      case '000110':
+      case '000110': // Tipo I
       case '000111':
       case '001001':
       case '001100':
